@@ -14,7 +14,9 @@
  * Response (single): { "algorithm": "SHA-256", "hash": "..." }
  * Response (multi):  { "algorithm": "SHA-256", "hashes": ["...", "..."] }
  */
-import { hash } from "./hash.js";
+import {
+  hash
+} from "./hash.js";
 
 const isString = x => typeof x === "string" || x instanceof String;
 const isArray = x => Array.isArray(x) || x instanceof Array;
@@ -34,7 +36,9 @@ const parseList = x => {
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data, null, 2), {
     status,
-    headers: { "Content-Type": "application/json" }
+    headers: {
+      "Content-Type": "application/json"
+    }
   });
 
 export default {
@@ -49,7 +53,9 @@ export default {
         const param = url.searchParams.get("text");
 
         if (param == null)
-          return json({ error: 'Missing "text" query parameter.' }, 400);
+          return json({
+            error: 'Missing "text" query parameter.'
+          }, 400);
 
         const list = parseList(param);
         text = list.length === 1 ? list[0] : list;
@@ -57,23 +63,38 @@ export default {
         const body = await request.json();
         text = body?.text;
       } else {
-        return json({ error: "Method not allowed. Use GET or POST." }, 405);
+        return json({
+          error: "Method not allowed. Use GET or POST."
+        }, 405);
       }
 
       if (text == null || (!isString(text) && !isArray(text)))
-        return json({ error: 'Missing or invalid "text". Must be a string or array of strings.' }, 400);
+        return json({
+          error: 'Missing or invalid "text". Must be a string or array of strings.'
+        }, 400);
 
       if (isArray(text)) {
         if (!text.every(isString))
-          return json({ error: "All text values must be strings." }, 400);
+          return json({
+            error: "All text values must be strings."
+          }, 400);
 
         const hashes = await Promise.all(text.map(hash));
-        return json({ algorithm: "SHA-256", hashes });
+        return json({
+          algorithm: "SHA-256",
+          hashes
+        });
       }
 
-      return json({ algorithm: "SHA-256", hash: await hash(text) });
+      return json({
+        algorithm: "SHA-256",
+        hash: await hash(text)
+      });
     } catch (error) {
-      return json({ error: "Internal server error", message: error.message }, 500);
+      return json({
+        error: "Internal server error",
+        message: error.message
+      }, 500);
     }
   }
 };
